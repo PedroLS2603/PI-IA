@@ -103,7 +103,6 @@ class Checkers:
         return count_pretas == 0 or count_brancas == 0
                 
     def acao(self, jogador, origem, destino, no: No = None):
-
         if not no:
             no = self.nos[-1]
         estado = list.copy(no.estado)
@@ -111,9 +110,33 @@ class Checkers:
         casa_origem = estado[origem[0]][origem[1]]
         casa_destino = estado[destino[0]][destino[1]]
 
-        if (casa_origem.cor != "P") or (casa_origem.peca == None) or (casa_destino.peca != None) or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor):
+        if (casa_origem.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor):
             return None
         
+        if (casa_destino.peca != None and casa_destino.peca.cor != jogador): 
+            if (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] > destino[0] and origem[1] < destino[1]):
+                estado[destino[0]][destino[1]].peca = None
+                destino = [destino[0] - 1, destino[1] + 1]
+            elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] > destino[0] and origem[1] > destino[1]):
+                estado[destino[0]][destino[1]].peca = None
+                destino = [destino[0] - 1, destino[1] + 1]
+            elif (estado[destino[0] + 1][destino[1] - 1].peca == None and origem[0] < destino[0] and origem[1] > destino[1]):
+                estado[destino[0]][destino[1]].peca = None
+                destino = [destino[0] + 1, destino[1] - 1]
+            elif (estado[destino[0] - 1][destino[1] - 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
+                estado[destino[0]][destino[1]].peca = None
+                destino = [destino[0] + 1, destino[1] - 1]
+            elif (estado[destino[0] - 1][destino[1] + 1].peca == None and origem[0] > destino[0] and origem[1] < destino[1]):
+                estado[destino[0]][destino[1]].peca = None
+                destino = [destino[0] + 1, destino[1] - 1]
+            elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
+                estado[destino[0]][destino[1]].peca = None
+                destino = [destino[0] + 1, destino[1] + 1]
+            elif (estado[destino[0] - 1][destino[1] - 1].peca == None and origem[0] > destino[0] and origem[1] > destino[1]):
+                estado[destino[0]][destino[1]].peca = None
+                destino = [destino[0] - 1, destino[1] - 1]
+            casa_destino = estado[destino[0]][destino[1]]
+
         estado[destino[0]][destino[1]].peca = estado[origem[0]][origem[1]].peca
         estado[origem[0]][origem[1]].peca = None
 
