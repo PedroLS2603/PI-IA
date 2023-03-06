@@ -25,3 +25,7 @@ while not jogo.valida_fim_de_jogo():
     except IndexError:
         print("Movimento inválido!")
         time.sleep(1)
+
+os.system("clear")
+jogo.print()
+print(f"{jogo.vencedor} venceram!")

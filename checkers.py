@@ -45,6 +45,7 @@ class Checkers:
         self.turnos = []
         self.raiz = None
         self.nos = []
+        self.vencedor = None
 
         for i in range(8):
             self.table.append([])
@@ -108,18 +109,20 @@ class Checkers:
                         count_pretas += 1
                     else:
                         count_brancas +=1
-        
+        if(count_pretas == 0):
+            self.vencedor = "Brancas"
+        elif(count_brancas == 0):
+            self.vencedor = "Pretas"
         return count_pretas == 0 or count_brancas == 0
                 
     def acao(self, jogador, origem, destino, no: No = None):
         if not no:
             no = self.nos[-1]
         estado = list.copy(no.estado)
-        
         casa_origem = estado[origem[0]][origem[1]]
         casa_destino = estado[destino[0]][destino[1]]
 
-        if (casa_destino.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor) or (jogador == "B" and destino[0] > origem[0] and casa_origem.peca.tipo == "N") or (jogador == "P" and destino[0] < origem[0] and casa_origem.peca.tipo == "N") or (destino == origem) or (destino[0] - origem[0] >= 2 or destino[0] - origem[0] <= 2) or (destino[1] - origem[1] >= 2 or destino[1] - origem[1] <= 2):
+        if (casa_destino.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor) or (jogador == "B" and destino[0] > origem[0] and casa_origem.peca.tipo == "N") or (jogador == "P" and destino[0] < origem[0] and casa_origem.peca.tipo == "N") or (destino == origem) or (destino[0] - origem[0] >= 2 or destino[0] - origem[0] <= -2) or (destino[1] - origem[1] >= 2 or destino[1] - origem[1] <= -2):
             print("Movimento inválido!")
             time.sleep(1)
             return None
@@ -129,6 +132,7 @@ class Checkers:
             #valida se não está capturando a própria peça
             if  (casa_destino.peca.cor == jogador):
                 print("Movimento inválido!")
+                return None
             elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
                 estado[destino[0]][destino[1]].peca = None
                 destino = [destino[0] + 1, destino[1] + 1]
@@ -141,8 +145,7 @@ class Checkers:
             elif (estado[destino[0] - 1][destino[1] - 1].peca == None and origem[0] > destino[0] and origem[1] > destino[1]):
                 estado[destino[0]][destino[1]].peca = None
                 destino = [destino[0] - 1, destino[1] - 1]
-            casa_destino = estado[destino[0]][destino[1]]
-
+            casa_destino = estado[destino[0]][destino[1]]         
         peca_antiga = estado[origem[0]][origem[1]].peca
 
 
