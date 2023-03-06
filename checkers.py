@@ -96,10 +96,7 @@ class Checkers:
     def valida_fim_de_jogo(self, no = None):
 
         if no == None:
-            if not len(self.nos) == 0:
-                return False
-            else:
-                no = self.nos[-1]
+            no = self.nos[-1]
 
         count_pretas = 0
         count_brancas = 0
@@ -122,13 +119,14 @@ class Checkers:
         casa_origem = estado[origem[0]][origem[1]]
         casa_destino = estado[destino[0]][destino[1]]
 
-        if (casa_destino.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor) or (jogador == "B" and destino[0] > origem[0] and casa_origem.peca.tipo == "N") or (jogador == "P" and destino[0] < origem[0] and casa_origem.peca.tipo == "N") or (destino == origem):
+        if (casa_destino.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor) or (jogador == "B" and destino[0] > origem[0] and casa_origem.peca.tipo == "N") or (jogador == "P" and destino[0] < origem[0] and casa_origem.peca.tipo == "N") or (destino == origem) or (destino[0] - origem[0] >= 2 or destino[0] - origem[0] <= 2) or (destino[1] - origem[1] >= 2 or destino[1] - origem[1] <= 2):
             print("Movimento inválido!")
             time.sleep(1)
             return None
         
         #Captura
         if (casa_destino.peca != None and casa_destino.peca.cor != jogador):
+            #valida se não está capturando a própria peça
             if  (casa_destino.peca.cor == jogador):
                 print("Movimento inválido!")
             elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
