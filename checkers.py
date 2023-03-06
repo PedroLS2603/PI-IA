@@ -72,8 +72,8 @@ class Checkers:
                     self.table[i].append(Casa(cor="P"))
     
     def print(self):
-        for linha in self.table:
-            print(linha)
+        for linha in range(len(self.table)):
+            print(f"{linha + 1} {self.table[linha]}")
 
     def iniciar(self):
         self.raiz = No(estado=self.table)
