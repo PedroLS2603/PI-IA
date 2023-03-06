@@ -1,4 +1,5 @@
 from no import No
+import time
 
 class Peca:
     # Tipos
@@ -8,11 +9,19 @@ class Peca:
     # Cores
     # B - Brancas
     # P - Pretas
-    def __init__(self, tipo, cor, emoji):
+    def __init__(self, tipo, cor):
         self.tipo = tipo
         self.cor = cor
-        self.emoji = emoji
-    
+        if tipo == "D":
+            if cor == "B":
+                self.emoji = "⛁"
+            else:
+                self.emoji = "⛃"
+        else:
+            if cor == "B":
+                self.emoji = "⛀"
+            else:
+                self.emoji = "⛂"
     def __len__(self):
         return 1
     
@@ -41,13 +50,13 @@ class Checkers:
             self.table.append([])
             for j in range(8):
                 if (i == 5 or i == 7) and j % 2 == 0:
-                    self.table[i].append(Casa(cor="P", peca=Peca("N", "B", "⛀")))
+                    self.table[i].append(Casa(cor="P", peca=Peca("N", "B")))
                 elif i == 6 and j % 2 == 1:
-                    self.table[i].append(Casa(cor="P", peca=Peca("N", "B", "⛀")))
+                    self.table[i].append(Casa(cor="P", peca=Peca("N", "B")))
                 elif (i == 0 or i == 2) and j % 2 == 1:
-                    self.table[i].append(Casa(cor="P", peca=Peca("N", "P", "⛂")))
+                    self.table[i].append(Casa(cor="P", peca=Peca("N", "P")))
                 elif i == 1 and j % 2 == 0:
-                    self.table[i].append(Casa(cor="P", peca=Peca("N", "P", "⛂")))
+                    self.table[i].append(Casa(cor="P", peca=Peca("N", "P")))
                 elif i == 3:
                     if j % 2 == 1:
                         self.table[i].append(Casa(cor="B"))
@@ -87,7 +96,10 @@ class Checkers:
     def valida_fim_de_jogo(self, no = None):
 
         if no == None:
-            return False
+            if not len(self.nos) == 0:
+                return False
+            else:
+                no = self.nos[-1]
 
         count_pretas = 0
         count_brancas = 0
@@ -110,37 +122,39 @@ class Checkers:
         casa_origem = estado[origem[0]][origem[1]]
         casa_destino = estado[destino[0]][destino[1]]
 
-        if (casa_origem.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor):
+        if (casa_destino.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor) or (jogador == "B" and destino[0] > origem[0] and casa_origem.peca.tipo == "N") or (jogador == "P" and destino[0] < origem[0] and casa_origem.peca.tipo == "N") or (destino == origem):
+            print("Movimento inválido!")
+            time.sleep(1)
             return None
         
-        if (casa_destino.peca != None and casa_destino.peca.cor != jogador): 
-            if (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] > destino[0] and origem[1] < destino[1]):
+        #Captura
+        if (casa_destino.peca != None and casa_destino.peca.cor != jogador):
+            if  (casa_destino.peca.cor == jogador):
+                print("Movimento inválido!")
+            elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
                 estado[destino[0]][destino[1]].peca = None
-                destino = [destino[0] - 1, destino[1] + 1]
-            elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] > destino[0] and origem[1] > destino[1]):
-                estado[destino[0]][destino[1]].peca = None
-                destino = [destino[0] - 1, destino[1] + 1]
+                destino = [destino[0] + 1, destino[1] + 1]
             elif (estado[destino[0] + 1][destino[1] - 1].peca == None and origem[0] < destino[0] and origem[1] > destino[1]):
-                estado[destino[0]][destino[1]].peca = None
-                destino = [destino[0] + 1, destino[1] - 1]
-            elif (estado[destino[0] - 1][destino[1] - 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
                 estado[destino[0]][destino[1]].peca = None
                 destino = [destino[0] + 1, destino[1] - 1]
             elif (estado[destino[0] - 1][destino[1] + 1].peca == None and origem[0] > destino[0] and origem[1] < destino[1]):
                 estado[destino[0]][destino[1]].peca = None
-                destino = [destino[0] + 1, destino[1] - 1]
-            elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
-                estado[destino[0]][destino[1]].peca = None
-                destino = [destino[0] + 1, destino[1] + 1]
+                destino = [destino[0] - 1, destino[1] + 1]
             elif (estado[destino[0] - 1][destino[1] - 1].peca == None and origem[0] > destino[0] and origem[1] > destino[1]):
                 estado[destino[0]][destino[1]].peca = None
                 destino = [destino[0] - 1, destino[1] - 1]
             casa_destino = estado[destino[0]][destino[1]]
 
-        estado[destino[0]][destino[1]].peca = estado[origem[0]][origem[1]].peca
+        peca_antiga = estado[origem[0]][origem[1]].peca
+
+
+        if(casa_origem.peca.cor == "P" and destino[0] == 7) or (casa_origem.peca.cor == "B" and destino[0] == 0):
+            estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_antiga.cor)
+        else:
+            estado[destino[0]][destino[1]].peca = casa_origem.peca
         estado[origem[0]][origem[1]].peca = None
 
-        self.turnos.append(tuple([len(self.turnos) + 1, origem, destino]))
+        self.turnos.append(tuple([len(self.turnos) + 1, jogador, origem, destino]))
 
         novo_no = No(no_pai = no, heuristica=0, estado=estado)
         self.nos.append(novo_no)
