@@ -11,7 +11,8 @@ while not jogo.valida_fim_de_jogo():
     jogo.print()
 
     jogador = jogo.quem_joga()
-    print(f"Vez de {jogador}")
+    placeholder = 'Brancas' if jogo.quem_joga() == "B" else "Pretas"
+    print(f"Vez de {placeholder}")
     try:
         linha_origem = int(input("Linha origem: ")) - 1
         coluna_origem = int(input("Coluna origem: ")) - 1

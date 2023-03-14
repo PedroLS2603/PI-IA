@@ -121,14 +121,17 @@ class Checkers:
         estado = list.copy(no.estado)
         casa_origem = estado[origem[0]][origem[1]]
         casa_destino = estado[destino[0]][destino[1]]
-
+        captura = False
         if (casa_destino.cor != "P") or (casa_origem.peca == None)  or (jogador != self.quem_joga()) or (jogador != casa_origem.peca.cor) or (jogador == "B" and destino[0] > origem[0] and casa_origem.peca.tipo == "N") or (jogador == "P" and destino[0] < origem[0] and casa_origem.peca.tipo == "N") or (destino == origem) or (destino[0] - origem[0] >= 2 or destino[0] - origem[0] <= -2) or (destino[1] - origem[1] >= 2 or destino[1] - origem[1] <= -2):
             print("Movimento inválido!")
             time.sleep(1)
             return None
         
         #Captura
-        if (casa_destino.peca != None and casa_destino.peca.cor != jogador):
+        while (casa_destino.peca != None):
+            captura = False
+            possibilidades = [[destino[0] + 1][destino[1] + 1], [destino[0] + 1][destino[1] - 1], [destino[0] - 1][destino[1] + 1] ,[destino[0] - 1][destino[1] - 1]]
+            possibilidade_utilizada = None
             #valida se não está capturando a própria peça
             if  (casa_destino.peca.cor == jogador):
                 print("Movimento inválido!")
@@ -136,25 +139,46 @@ class Checkers:
             elif (estado[destino[0] + 1][destino[1] + 1].peca == None and origem[0] < destino[0] and origem[1] < destino[1]):
                 estado[destino[0]][destino[1]].peca = None
                 destino = [destino[0] + 1, destino[1] + 1]
+                possibilidade_utilizada = [x for x in possibilidades if destino == x][0]
+                captura = True
             elif (estado[destino[0] + 1][destino[1] - 1].peca == None and origem[0] < destino[0] and origem[1] > destino[1]):
                 estado[destino[0]][destino[1]].peca = None
                 destino = [destino[0] + 1, destino[1] - 1]
+                possibilidade_utilizada = [x for x in possibilidades if destino == x][0]
+                captura = True
+
             elif (estado[destino[0] - 1][destino[1] + 1].peca == None and origem[0] > destino[0] and origem[1] < destino[1]):
                 estado[destino[0]][destino[1]].peca = None
                 destino = [destino[0] - 1, destino[1] + 1]
+                possibilidade_utilizada = [x for x in possibilidades if destino == x][0]
+
+                captura = True
             elif (estado[destino[0] - 1][destino[1] - 1].peca == None and origem[0] > destino[0] and origem[1] > destino[1]):
                 estado[destino[0]][destino[1]].peca = None
+                captura = True
                 destino = [destino[0] - 1, destino[1] - 1]
-            casa_destino = estado[destino[0]][destino[1]]         
-        peca_antiga = estado[origem[0]][origem[1]].peca
+                possibilidade_utilizada = [x for x in possibilidades if destino == x][0]
+
+            peca_antiga = estado[origem[0]][origem[1]].peca
+
+            if(casa_origem.peca.cor == "P" and destino[0] == 7) or (casa_origem.peca.cor == "B" and destino[0] == 0):
+                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_antiga.cor)
+            else:
+                estado[destino[0]][destino[1]].peca = casa_origem.peca
+            estado[origem[0]][origem[1]].peca = None
+
+            casa_origem = casa_destino
+            casa_destino = estado[possibilidade_utilizada[0]][possibilidade_utilizada[1]]         
+        
+        if not captura:
+            peca_antiga = estado[origem[0]][origem[1]].peca
 
 
-        if(casa_origem.peca.cor == "P" and destino[0] == 7) or (casa_origem.peca.cor == "B" and destino[0] == 0):
-            estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_antiga.cor)
-        else:
-            estado[destino[0]][destino[1]].peca = casa_origem.peca
-        estado[origem[0]][origem[1]].peca = None
-
+            if(casa_origem.peca.cor == "P" and destino[0] == 7) or (casa_origem.peca.cor == "B" and destino[0] == 0):
+                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_antiga.cor)
+            else:
+                estado[destino[0]][destino[1]].peca = casa_origem.peca
+            estado[origem[0]][origem[1]].peca = None
         self.turnos.append(tuple([len(self.turnos) + 1, jogador, origem, destino]))
 
         novo_no = No(no_pai = no, heuristica=0, estado=estado)
