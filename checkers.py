@@ -136,7 +136,6 @@ class Checkers:
         #Captura
         while (casa_destino.peca != None):
             captura = False
-            possibilidade_utilizada = None
             #valida se não está capturando a própria peça
             if  (casa_destino.peca.cor == jogador):
                 print("Movimento inválido!")
@@ -171,7 +170,7 @@ class Checkers:
                 if casa_a_ser_testada.peca != None and casa_a_ser_testada.peca.cor != jogador:
                     diff_linha = casa_a_ser_testada.linha - nova_casa_origem.linha
                     diff_coluna = casa_a_ser_testada.coluna - nova_casa_origem.coluna
-                    if diff_linha + casa_a_ser_testada.linha >= len(estado) or diff_linha + casa_a_ser_testada.coluna >= len(estado):
+                    if diff_linha + casa_a_ser_testada.linha >= len(estado) or diff_linha + casa_a_ser_testada.coluna >= len(estado) or diff_linha + casa_a_ser_testada.linha < 0 or diff_linha + casa_a_ser_testada.coluna < 0:
                         break
                     if estado[possibilidade[0] + diff_linha][possibilidade[1] + diff_coluna].peca == None:
                         casas_possiveis.append(casa_a_ser_testada)
@@ -179,7 +178,7 @@ class Checkers:
 
             if len(casas_possiveis) == 1:
                 casa_destino = casas_possiveis[0]
-            else:
+            elif len(casas_possiveis) > 0:
                 print("Movimentos possíveis:")
                 for movimento in casas_possiveis:
                     print(f"{casas_possiveis.index(movimento) + 1} Linha: {movimento.linha} - Coluna: {movimento.coluna}")
@@ -193,7 +192,7 @@ class Checkers:
             else:
                 estado[destino[0]][destino[1]].peca = casa_origem.peca
             estado[origem[0]][origem[1]].peca = None
-            destino = [casa_a_ser_testada.linha, casa_a_ser_testada.coluna]
+            destino = [casa_destino.linha, casa_destino.coluna]
             origem = [nova_casa_origem.linha, nova_casa_origem.coluna]
             casa_origem = nova_casa_origem
         
