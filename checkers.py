@@ -16,11 +16,13 @@ class Peca:
         self.tipo = tipo
         self.cor = cor
         if tipo == "D":
+            self.peso = 10
             if cor == "B":
                 self.emoji = "⛁"
             else:
                 self.emoji = "⛃"
         else:
+            self.peso = 5
             if cor == "B":
                 self.emoji = "⛀"
             else:
@@ -32,12 +34,27 @@ class Peca:
         return f"{self.emoji}"
     
 class Casa:
-    def __init__(self, cor, linha, coluna, peca: Peca = None):
-        self.cor = cor
+    def __init__(self, linha, coluna, peca: Peca = None):
+        self.cor = None
         self.peca = peca
         self.linha = linha
         self.coluna = coluna
-    
+        self.peso = None
+
+        if (linha % 2 == 0 and coluna % 2 == 0) or (linha % 2 == 1 and coluna % 2 == 1):
+            self.cor = "B"
+        else:
+            self.cor = "P"
+
+        if self.cor == "P":
+            if linha == 0 or linha == 7 or coluna == 0 or coluna == 7:
+                self.peso = 4
+            elif linha == 1 or linha == 6 or coluna == 1 or coluna == 6:
+                self.peso = 3
+            elif linha == 2 or linha == 5 or coluna == 2 or coluna == 5:
+                self.peso = 2
+            else:
+                self.peso = 1
     def __repr__(self):
         if self.peca:
             return f"{self.peca.emoji}"
@@ -55,26 +72,12 @@ class Checkers:
         for i in range(8):
             self.table.append([])
             for j in range(8):
-                if (i == 5 or i == 7) and j % 2 == 0:
-                    self.table[i].append(Casa(cor="P",linha = i, coluna=j, peca=Peca("N", "B")))
-                elif i == 6 and j % 2 == 1:
-                    self.table[i].append(Casa(cor="P",linha = i, coluna=j, peca=Peca("N", "B")))
-                elif (i == 0 or i == 2) and j % 2 == 1:
-                    self.table[i].append(Casa(cor="P",linha = i, coluna=j, peca=Peca("N", "P")))
-                elif i == 1 and j % 2 == 0:
-                    self.table[i].append(Casa(cor="P",linha = i, coluna=j, peca=Peca("N", "P")))
-                elif i == 3:
-                    if j % 2 == 1:
-                        self.table[i].append(Casa(cor="B",linha = i, coluna=j))
-                    else:
-                        self.table[i].append(Casa(cor="P",linha = i, coluna=j))
-                elif i == 4:
-                    if j % 2 == 0:
-                        self.table[i].append(Casa(cor="B",linha = i, coluna=j))
-                    else:
-                        self.table[i].append(Casa(cor="P",linha = i, coluna=j))
-                else: 
-                    self.table[i].append(Casa(cor="P", linha = i, coluna=j))
+                if ((i == 5 or i == 7) and j % 2 == 0) or (i == 6 and j % 2 == 1):
+                    self.table[i].append(Casa(linha = i, coluna=j, peca=Peca("N", "B")))
+                elif ((i == 0 or i == 2) and j % 2 == 1) or (i == 1 and j % 2 == 0):
+                    self.table[i].append(Casa(linha = i, coluna=j, peca=Peca("N", "P")))
+                else:
+                    self.table[i].append(Casa(linha = i, coluna=j))
     
     def print(self):
         for linha in range(len(self.table)):
@@ -136,6 +139,8 @@ class Checkers:
         #Captura
         while (casa_destino.peca != None):
             captura = False
+            peca_origem = estado[origem[0]][origem[1]].peca
+
             #valida se não está capturando a própria peça
             if  (casa_destino.peca.cor == jogador):
                 print("Movimento inválido!")
@@ -173,6 +178,8 @@ class Checkers:
                     if diff_linha + casa_a_ser_testada.linha >= len(estado) or diff_linha + casa_a_ser_testada.coluna >= len(estado) or diff_linha + casa_a_ser_testada.linha < 0 or diff_linha + casa_a_ser_testada.coluna < 0:
                         break
                     if estado[possibilidade[0] + diff_linha][possibilidade[1] + diff_coluna].peca == None:
+                        if (peca_origem.tipo == "N" and possibilidade[0] < nova_casa_origem.linha and peca_origem.cor == "P") or (peca_origem.tipo == "N" and possibilidade[0] > nova_casa_origem.linha and peca_origem.cor == "B"):
+                            continue
                         casas_possiveis.append(casa_a_ser_testada)
 
 
@@ -185,10 +192,10 @@ class Checkers:
                 opt = int(input("Escolha uma opção: "))
                 casa_destino = casas_possiveis[opt - 1]
 
-            peca_antiga = casa_origem.peca
+            peca_origem = casa_origem.peca
 
             if(casa_origem.peca.cor == "P" and destino[0] == 7) or (casa_origem.peca.cor == "B" and destino[0] == 0):
-                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_antiga.cor)
+                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_origem.cor)
             else:
                 estado[destino[0]][destino[1]].peca = casa_origem.peca
             estado[origem[0]][origem[1]].peca = None
@@ -197,11 +204,8 @@ class Checkers:
             casa_origem = nova_casa_origem
         
         if not captura:
-            peca_antiga = estado[origem[0]][origem[1]].peca
-
-
             if(casa_origem.peca.cor == "P" and destino[0] == 7) or (casa_origem.peca.cor == "B" and destino[0] == 0):
-                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_antiga.cor)
+                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_origem.cor)
             else:
                 estado[destino[0]][destino[1]].peca = casa_origem.peca
             estado[origem[0]][origem[1]].peca = None
