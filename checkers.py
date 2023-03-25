@@ -107,7 +107,9 @@ class Checkers:
         return True
     
     def calcular_possibilidades(self, destino):
-        return [[destino[0] + 1, destino[1] + 1], [destino[0] + 1, destino[1] - 1], [destino[0] - 1, destino[1] + 1] ,[destino[0] - 1, destino[1] - 1]]
+        linha = destino[0]
+        coluna = destino[1]
+        return [[linha + 1, coluna + 1], [linha + 1, coluna - 1], [linha - 1, coluna + 1] ,[linha - 1, coluna - 1]]
     def valida_fim_de_jogo(self, no = None):
 
         if no == None:
@@ -144,7 +146,8 @@ class Checkers:
         #Captura
         while (casa_destino.peca != None):
             captura = False
-            peca_origem = estado[origem[0]][origem[1]].peca
+            casas_possiveis = []
+            peca_origem = casa_origem.peca
 
             #valida se não está capturando a própria peça
             if  (casa_destino.peca.cor == jogador):
@@ -171,22 +174,27 @@ class Checkers:
                 captura = True
                 destino = [destino[0] - 1, destino[1] - 1]
 
+            if(casa_origem.peca.cor == "A" and destino[0] == 7) or (casa_origem.peca.cor == "L" and destino[0] == 0):
+                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_origem.cor)
+            else:
+                estado[destino[0]][destino[1]].peca = casa_origem.peca
+            estado[origem[0]][origem[1]].peca = None
 
             possibilidades = self.calcular_possibilidades(destino)
-            nova_casa_origem = estado[destino[0]][destino[1]]         
-            casas_possiveis = []
+            casa_origem = estado[destino[0]][destino[1]]         
+            peca_origem = casa_origem.peca
             for possibilidade in possibilidades:
                 if possibilidade[0] >= len(estado) or possibilidade[0] < 0 or possibilidade[1] >= len(estado) or possibilidade[1] < 0:
-                    break
+                    continue
 
                 casa_a_ser_testada = estado[possibilidade[0]][possibilidade[1]]
                 if casa_a_ser_testada.peca != None and casa_a_ser_testada.peca.cor != jogador:
-                    diff_linha = casa_a_ser_testada.linha - nova_casa_origem.linha
-                    diff_coluna = casa_a_ser_testada.coluna - nova_casa_origem.coluna
-                    if diff_linha + casa_a_ser_testada.linha >= len(estado) or diff_linha + casa_a_ser_testada.coluna >= len(estado) or diff_linha + casa_a_ser_testada.linha < 0 or diff_linha + casa_a_ser_testada.coluna < 0:
-                        break
+                    diff_linha = casa_a_ser_testada.linha - casa_origem.linha
+                    diff_coluna = casa_a_ser_testada.coluna - casa_origem.coluna
+                    if diff_linha + casa_a_ser_testada.linha >= len(estado) or diff_coluna + casa_a_ser_testada.coluna >= len(estado) or diff_linha + casa_a_ser_testada.linha < 0 or diff_coluna + casa_a_ser_testada.coluna < 0:
+                        continue
                     if estado[possibilidade[0] + diff_linha][possibilidade[1] + diff_coluna].peca == None:
-                        if ((peca_origem.tipo == "N" and possibilidade[0] < nova_casa_origem.linha and peca_origem.cor == "A") or (peca_origem.tipo == "N" and possibilidade[0] > nova_casa_origem.linha and peca_origem.cor == "L")) and ((possibilidade[0] + diff_linha != 7 and peca_origem.cor == "A") or (possibilidade[0] + diff_linha != 0 and peca_origem.cor == "L")):
+                        if ((peca_origem.tipo == "N" and possibilidade[0] < casa_origem.linha and peca_origem.cor == "A") or (peca_origem.tipo == "N" and possibilidade[0] > casa_origem.linha and peca_origem.cor == "L")) and ((possibilidade[0] + diff_linha != 7 and peca_origem.cor == "A") or (possibilidade[0] + diff_linha != 0 and peca_origem.cor == "L")):
                             continue
                         casas_possiveis.append(casa_a_ser_testada)
 
@@ -202,16 +210,8 @@ class Checkers:
                     raise ValueError
                 casa_destino = casas_possiveis[opt - 1]
 
-            peca_origem = casa_origem.peca
-
-            if(casa_origem.peca.cor == "A" and destino[0] == 7) or (casa_origem.peca.cor == "L" and destino[0] == 0):
-                estado[destino[0]][destino[1]].peca = Peca(tipo="D", cor=peca_origem.cor)
-            else:
-                estado[destino[0]][destino[1]].peca = casa_origem.peca
-            estado[origem[0]][origem[1]].peca = None
             destino = [casa_destino.linha, casa_destino.coluna]
-            origem = [nova_casa_origem.linha, nova_casa_origem.coluna]
-            casa_origem = nova_casa_origem
+            origem = [casa_origem.linha, casa_origem.coluna]
         
         if not captura:
             if(casa_origem.peca.cor == "A" and destino[0] == 7) or (casa_origem.peca.cor == "L" and destino[0] == 0):
