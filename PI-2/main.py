@@ -1,6 +1,7 @@
 import discord
 import os
 import json
+from classificador import predict_url
  
 intents = discord.Intents.all()
 client = discord.Client(command_prefix='!', intents=intents)
@@ -18,9 +19,11 @@ async def on_message(message):
         return
 
     if util["channel_id"] == str(message.channel.id):
-        if len(message.attachments) > 0:
+        if len(message.attachments) > 0 and str(message.content).startswith("!predict"):
+            predicao = predict_url(str(message.attachments[0].url))
+            print(predicao)
             await message.channel.send('Imagem recebida!')
 
-        print(message.content)
+    
         
 client.run(os.getenv('DISCORD-TOKEN'))
