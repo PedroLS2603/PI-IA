@@ -21,9 +21,6 @@ async def on_message(message):
     if util["channel_id"] == str(message.channel.id):
         if len(message.attachments) > 0 and str(message.content).startswith("!predict"):
             predicao = predict_url(str(message.attachments[0].url))
-            print(predicao)
-            await message.channel.send('Imagem recebida!')
+            await message.channel.send(f'A imagem pertence à classe **{predicao}**')
 
-    
-        
 client.run(os.getenv('DISCORD-TOKEN'))

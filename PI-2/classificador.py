@@ -3,33 +3,37 @@ from tensorflow import keras
 import requests
 from PIL import Image
 from io import BytesIO
+import numpy as np
+import cv2
+import os
 
 def normalizar(image):
+    image = cv2.resize(image, (64,64))
+    image = image.reshape((1, 64, 64, 3,))
     image = tf.cast(image/255. ,tf.float32)
-    print(image.shape)
-    image = tf.image.resize(image, (64,64))
-    print(image.shape)
-    image = tf.reshape(image, (64,64,3))
 
     return image
+
 def predict_url(url):
 
     request = requests.get(url)
 
-    img_bytes = BytesIO(request.content)
-
-    image = Image.open(fp=img_bytes)
+    image = Image.open(fp=BytesIO(request.content))
     image = image.convert('RGB')
-    arr_image = keras.utils.img_to_array(image)
 
-    # image = normalizar(arr_image)
-    print(image.shape)
+    arr_image = np.array(image)
+
+    labels = os.listdir(f"{os.getcwd()}/classificador/train")
+
+    image = normalizar(arr_image)
 
     model = keras.saving.load_model("classificador/satellite_image_classificator.h5")
 
+    probabilidades = model.predict([image])
 
-    predict = model.predict([image])
+    predict = tf.math.argmax(probabilidades[0])
 
-    return predict
+    predict = str(tf.gather(labels, predict).numpy()).split("'")[1]
 
-# def predict_file(image=None):
+    return predict.upper()
+
