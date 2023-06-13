@@ -7,18 +7,21 @@ import os
 import pickle
 import argparse
 
-
-load_folder = os.path.join(__file__.split('main')[0], "qtables/")
-qtable_file_index = len(os.listdir(load_folder))
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--eps",    default=10,     help="Iterações.", type=int)
-parser.add_argument("--load",   default=f"qtable_{qtable_file_index - 1}.ql")
+parser.add_argument("--load",   default=f"qtable_0.ql")
 parser.add_argument("--dict",   default="dict", help="Dict ram/disk.")
 parser.add_argument("--mode",   default=None, help="Visualization mode")
-
-
+parser.add_argument("--game",   default="MsPacman", help="Game to leaarn")
 args = parser.parse_args()
+
+proj_path = __file__.split('main')[0]
+try:
+  load_folder = os.path.join(proj_path, f"qtables_{args.game}/")
+  qtable_file_index = len(os.listdir(load_folder))
+except FileNotFoundError:
+  os.mkdir(load_folder)
+
 
 testes = [
   {"alpha": 0.1, "gamma": 1, "e": 1},
@@ -66,7 +69,7 @@ def treinar(teste, eps, problema: Problema, q_load = None):
   return agente
 
 
-env = gymnasium.make("ALE/MsPacman-v5", obs_type="ram", render_mode=args.mode)
+env = gymnasium.make(f"ALE/{args.game}-v5", obs_type="ram", render_mode=args.mode)
 problema = Problema(env)
 
 if args.dict == "dict":
@@ -88,7 +91,12 @@ if args.dict == "dict":
     plt.ylabel("Pontuação")
 
 
-    plt.savefig(f"resultados/desempenho_{j}")
+    try:
+      plt.savefig(f"resultados_{args.game}/desempenho_{j}")
+
+    except:
+      os.mkdir(os.path.join(proj_path, f"resultados_{args.game}/"))
+      plt.savefig(f"resultados_{args.game}/desempenho_{j}")
 
     f = open(os.path.join(load_folder, f"qtable_{j}.ql"), "wb")
     pickle.dump(agente.get_q_table(),f)
@@ -98,7 +106,7 @@ else:
   q_file = open(os.path.join(load_folder, args.load), "rb")
   q_load = pickle.load(q_file)
   q_file.close()
-  teste = {"alpha": 0.5, "gamma": 0.6, "e": 0.4}
+  teste = {"alpha": 0.5, "gamma": 0.6, "e": 0.5}
 
   agente = treinar(teste=teste,eps=args.eps,problema=problema,q_load=q_load)
 
@@ -113,8 +121,13 @@ else:
   plt.xlabel("Ciclo")
   plt.ylabel("Pontuação")
 
+  try:
+    plt.savefig(f"resultados/desempenho_{file_index}")
 
-  plt.savefig(f"resultados/desempenho_{file_index}")
+  except:
+    os.mkdir(os.path.join(proj_path, f"resultados_{args.game}/"))
+    plt.savefig(f"resultados_{args.game}/desempenho_{file_index}")
+
 
   f = open(os.path.join(load_folder, f"qtable_{file_index}.ql"), "wb")
   pickle.dump(agente.get_q_table(),f)

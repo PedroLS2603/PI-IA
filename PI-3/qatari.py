@@ -27,11 +27,13 @@ class QAtari:
         self.gamma_minimo = 0.1
 
         self.recompensas = {}
+
+        n_acoes = problema.env.action_space.__dict__['n']
+
     
         if Q:
-             self.Q = Q
+             self.Q = defaultdict(lambda: np.zeros(n_acoes), Q)
         else:
-            n_acoes = problema.env.action_space.__dict__['n']
             self.Q = defaultdict(lambda: np.zeros(n_acoes))
             
     def proxima_acao(self, estado):
