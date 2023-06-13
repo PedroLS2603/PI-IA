@@ -15,25 +15,27 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--eps",    default=10,     help="Iterações.", type=int)
 parser.add_argument("--load",   default=f"qtable_{qtable_file_index - 1}.ql")
 parser.add_argument("--dict",   default="dict", help="Dict ram/disk.")
+parser.add_argument("--mode",   default=None, help="Visualization mode")
+
 
 args = parser.parse_args()
 
 testes = [
-  {"alpha": 0.1, "gamma": 1},
-  {"alpha": 0.2, "gamma": 0.9},
-  {"alpha": 0.3, "gamma": 0.8},
-  {"alpha": 0.4, "gamma": 0.7},
-  {"alpha": 0.5, "gamma": 0.6},
-  {"alpha": 0.6, "gamma": 0.5},
-  {"alpha": 0.7, "gamma": 0.4},
-  {"alpha": 0.8, "gamma": 0.3},
-  {"alpha": 0.9, "gamma": 0.2},
-  {"alpha": 1, "gamma": 0.1},
+  {"alpha": 0.1, "gamma": 1, "e": 1},
+  {"alpha": 0.2, "gamma": 0.9, "e": 1},
+  {"alpha": 0.3, "gamma": 0.8, "e": 1},
+  {"alpha": 0.4, "gamma": 0.7, "e": 1},
+  {"alpha": 0.5, "gamma": 0.6, "e": 1},
+  {"alpha": 0.6, "gamma": 0.5, "e": 1},
+  {"alpha": 0.7, "gamma": 0.4, "e": 1},
+  {"alpha": 0.8, "gamma": 0.3, "e": 1},
+  {"alpha": 0.9, "gamma": 0.2, "e": 1},
+  {"alpha": 1, "gamma": 0.1, "e": 1},
 ]
 
 def treinar(teste, eps, problema: Problema, q_load = None):
   problema.reset()
-  agente = QAtari(problema, alpha=teste["alpha"], gamma=teste["gamma"], Q=q_load)
+  agente = QAtari(problema, alpha=teste["alpha"], gamma=teste["gamma"], Q=q_load, e=teste["e"])
   
 
   estado_atual = agente.problema.estado_inicial
@@ -64,8 +66,7 @@ def treinar(teste, eps, problema: Problema, q_load = None):
   return agente
 
 
-
-env = gymnasium.make("ALE/MsPacman-v5", obs_type="ram")
+env = gymnasium.make("ALE/MsPacman-v5", obs_type="ram", render_mode=args.mode)
 problema = Problema(env)
 
 if args.dict == "dict":
@@ -97,7 +98,7 @@ else:
   q_file = open(os.path.join(load_folder, args.load), "rb")
   q_load = pickle.load(q_file)
   q_file.close()
-  teste = {"alpha": 0.5, "gamma": 0.6}
+  teste = {"alpha": 0.5, "gamma": 0.6, "e": 0.4}
 
   agente = treinar(teste=teste,eps=args.eps,problema=problema,q_load=q_load)
 

@@ -3,13 +3,13 @@ from problema import Problema
 from collections import defaultdict
 
 class QAtari:
-    def __init__(self, problema: Problema, gamma = 0.1, alpha = 0.1, Q: dict = None):
+    def __init__(self, problema: Problema, gamma = 0.1, alpha = 0.1, e=0.4, Q: dict = None):
 
         self.problema = problema
 
 
         # Configurações de exploração
-        self.e_inicial =  1
+        self.e_inicial =  e
         self.e = self.e_inicial
         self.e_minimo = 0.4
         self.e_decay = 0.95
