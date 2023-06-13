@@ -12,8 +12,13 @@ parser.add_argument("--eps",    default=10,     help="Iterações.", type=int)
 parser.add_argument("--load",   default=f"qtable_0.ql")
 parser.add_argument("--dict",   default="dict", help="Dict ram/disk.")
 parser.add_argument("--mode",   default=None, help="Visualization mode")
-parser.add_argument("--game",   default="MsPacman", help="Game to leaarn")
+parser.add_argument("--game",   default="MsPacman", help="Game to learn")
+parser.add_argument("--decay",   default=False, help="Use decay to learn: True/False", type=bool)
+
+
 args = parser.parse_args()
+
+print(args.decay)
 
 proj_path = __file__.split('main')[0]
 try:
@@ -23,7 +28,7 @@ except FileNotFoundError:
   os.mkdir(load_folder)
 
 
-testes = [
+testes_com_decay = [
   {"alpha": 0.1, "gamma": 1, "e": 1},
   {"alpha": 0.2, "gamma": 0.9, "e": 1},
   {"alpha": 0.3, "gamma": 0.8, "e": 1},
@@ -34,6 +39,19 @@ testes = [
   {"alpha": 0.8, "gamma": 0.3, "e": 1},
   {"alpha": 0.9, "gamma": 0.2, "e": 1},
   {"alpha": 1, "gamma": 0.1, "e": 1},
+]
+
+testes_sem_decay = [
+  {"alpha": 0.1, "gamma": 1, "e": 0.4},
+  {"alpha": 0.2, "gamma": 0.9, "e": 0.4},
+  {"alpha": 0.3, "gamma": 0.8, "e": 0.4},
+  {"alpha": 0.4, "gamma": 0.7, "e": 0.4},
+  {"alpha": 0.5, "gamma": 0.6, "e": 0.4},
+  {"alpha": 0.6, "gamma": 0.5, "e": 0.4},
+  {"alpha": 0.7, "gamma": 0.4, "e": 0.4},
+  {"alpha": 0.8, "gamma": 0.3, "e": 0.4},
+  {"alpha": 0.9, "gamma": 0.2, "e": 0.4},
+  {"alpha": 1, "gamma": 0.1, "e": 0.4},
 ]
 
 def treinar(teste, eps, problema: Problema, q_load = None):
@@ -62,9 +80,10 @@ def treinar(teste, eps, problema: Problema, q_load = None):
         break
     
     agente.registrar_recompensa(i, recompensa_total)
-    agente.reduzir_e()
-    agente.reduzir_y()
-    agente.reduzir_a()
+    if args.decay:
+      agente.reduzir_e()
+      agente.reduzir_y()
+      agente.reduzir_a()
 
   return agente
 
@@ -73,6 +92,10 @@ env = gymnasium.make(f"ALE/{args.game}-v5", obs_type="ram", render_mode=args.mod
 problema = Problema(env)
 
 if args.dict == "dict":
+  if args.decay:
+    testes = testes_com_decay
+  else:
+    testes = testes_sem_decay
   for j in range(len(testes)):
     
     teste = testes[j]
