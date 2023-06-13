@@ -1,4 +1,3 @@
-pickle
 numpy
 matplotlib
 gymnasium[atari, accept-rom-licesnse]
