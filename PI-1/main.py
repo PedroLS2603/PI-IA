@@ -11,7 +11,8 @@ while not jogo.valida_fim_de_jogo():
     jogo.print()
 
     jogador = jogo.quem_joga()
-    print(f"Vez de {jogador}")
+    placeholder = 'Laranjas' if jogo.quem_joga() == "L" else "Azuis"
+    print(f"Vez de {placeholder}")
     try:
         linha_origem = int(input("Linha origem: ")) - 1
         coluna_origem = int(input("Coluna origem: ")) - 1
@@ -22,9 +23,9 @@ while not jogo.valida_fim_de_jogo():
     except ValueError:
         print("Movimento inválido!")
         time.sleep(1)
-    except IndexError:
-        print("Movimento inválido!")
-        time.sleep(1)
+    # except IndexError:
+    #     print("Movimento inválido!")
+    #     time.sleep(1)
 
 os.system("clear")
 jogo.print()
